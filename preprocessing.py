@@ -24,15 +24,21 @@ def save_STFT(file, name, activity, subject):
     np.save("STFT_features/stft_257_1/" + subject + "_" +
             name[:-4] + "_" + activity + ".npy", stft)
 
+# From example repo:
+# activities = ['Calling', 'Clapping', 'Drinking', 'Eating', 'Entering',
+#               'Exiting', 'Falling', 'LyingDown', 'OpeningPillContainer',
+#               'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
+#               'StandUp', 'Sweeping', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
+#               'WashingHand', 'WatchingTV', 'WaterPouring', 'Writing']
 
-activities = ['Calling', 'Clapping', 'Drinking', 'Eating', 'Entering',
-              'Exiting', 'Falling', 'LyingDown', 'OpeningPillContainer',
-              'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
-              'StandUp', 'Sweeping', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
-              'WashingHand', 'WatchingTV', 'WaterPouring', 'Writing']
 
-subjects = ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's09',
-            's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17']
+activities = ['GlassBreak', 'Scream', 'Crash']
+
+# From example repo:
+# subjects = ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's09',
+#             's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17']
+
+subjects = ['s01', 's02', 's03']
 
 for activity in activities:
     for subject in subjects:
