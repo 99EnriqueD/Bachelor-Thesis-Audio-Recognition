@@ -32,13 +32,13 @@ def save_STFT(file, name, activity, subject):
 #               'WashingHand', 'WatchingTV', 'WaterPouring', 'Writing']
 
 
-activities = ['GlassBreak', 'Scream', 'Crash']
+activities = ['GlassBreak', 'Scream', 'Crash', "Fire"]
 
 # From example repo:
 # subjects = ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's09',
 #             's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17']
 
-subjects = ['s01', 's02', 's03']
+subjects = ['s01', 's02', 's03', 's04', 's05']
 
 for activity in activities:
     for subject in subjects:
