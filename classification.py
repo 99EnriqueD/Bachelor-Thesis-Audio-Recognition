@@ -5,7 +5,7 @@ import os
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, LSTM, TimeDistributed
 from keras.layers import Convolution2D, MaxPooling2D, MaxPooling1D, Conv1D
-from keras.optimizers import Adam, SGD
+from keras.optimizers import Adam, SGD, Adamax
 from keras.utils import np_utils
 from sklearn import metrics
 import random
@@ -22,23 +22,24 @@ def reSample(data, samples):
     return np.array(newdata)
 
 
-train_subjects = ['s07', 's16', 's09', 's13', 's04',
-                  's11', 's15', 's01', 's12', 's10', 's06', 's08']
-validation_subjects = ['s02', 's03']
-test_subjects = ['s05', 's17']
-
+train_subjects = ['s01', 's02', 's03']
+validation_subjects = ['s04']
+test_subjects = ['s05']
+name_array = []
 
 def get_data(path, sampleSize):
 
-    mergedActivities = ['Drinking', 'Eating', 'LyingDown', 'OpeningPillContainer',
-                        'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
-                        'StandUp', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
-                        'WaterPouring', 'Writing']
+    #mergedActivities = ['Drinking', 'Eating', 'LyingDown', 'OpeningPillContainer',
+    #                    'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
+    #                    'StandUp', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
+    #                    'WaterPouring', 'Writing']
 
-    specificActivities = ['Calling', 'Clapping',
-                          'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
+    #specificActivities = ['Calling', 'Clapping',
+    #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
+    specificActivities = ['GlassBreak', 'Scream', 'Crash']
 
     enteringExiting = ['Entering', 'Exiting']
+
 
     X_train = []
     Y_train = []
@@ -51,47 +52,23 @@ def get_data(path, sampleSize):
     # https://medium.com/@chathuranga.15/sound-event-classification-using-machine-learning-8768092beafc
 
     for file in os.listdir(path + 'stft_257_1/'):
-        if int(file.split("__")[1].split("_")[0]) != 1:
-            a = (np.load(path + "stft_257_1/" + file)).T
-            label = file.split('_')[-1].split(".")[0]
-            if(label in specificActivities):
-                # if(a.shape[0]>100 and a.shape[0]<500):
-                if file.split("_")[0] in train_subjects:
-                    # X_train.append(reSample(a,sampleSize))
-                    X_train.append(np.mean(a, axis=0))
-                    Y_train.append(label)
-                elif file.split("_")[0] in validation_subjects:
-                    X_validation.append(np.mean(a, axis=0))
-                    Y_validation.append(label)
-                else:
-                    X_test.append(np.mean(a, axis=0))
-                    Y_test.append(label)
-                    # samples[label].append(reSample(a,sampleSize))
-            elif(label in enteringExiting):
-                label = "enteringExiting"
-              # if(a.shape[0]>100 and a.shape[0]<500):
+
+        a = (np.load(path + "stft_257_1/" + file)).T
+        label = file.split('_')[-1].split(".")[0]
+        if(label in specificActivities):
+            # if(a.shape[0]>100 and a.shape[0]<500):
             if file.split("_")[0] in train_subjects:
+                # X_train.append(reSample(a,sampleSize))
                 X_train.append(np.mean(a, axis=0))
                 Y_train.append(label)
             elif file.split("_")[0] in validation_subjects:
                 X_validation.append(np.mean(a, axis=0))
                 Y_validation.append(label)
             else:
+                name_array.append(file)
                 X_test.append(np.mean(a, axis=0))
                 Y_test.append(label)
                 # samples[label].append(reSample(a,sampleSize))
-        else:
-            label = "other"
-            # if(a.shape[0]>100 and a.shape[0]<500):
-            if file.split("_")[0] in train_subjects:
-                X_train.append(np.mean(a, axis=0))
-                Y_train.append(label)
-            elif file.split("_")[0] in validation_subjects:
-                X_validation.append(np.mean(a, axis=0))
-                Y_validation.append(label)
-            else:
-                X_test.append(np.mean(a, axis=0))
-                Y_test.append(label)
 
     X_train = np.array(X_train)
     Y_train = np.array(Y_train)
@@ -151,7 +128,7 @@ def showResult():
     print_M_P(conf_M)
 
 
-featuresPath = "Audio_classification/STFT_features/"
+featuresPath = "STFT_features/"
 
 a, b, c, d, e, f = get_data(featuresPath, 250)
 
@@ -177,30 +154,27 @@ filter_size = 2
 # build model
 model = Sequential()
 
-model.add(Dense(256, input_shape=(257,)))
+model.add(Dense(512, input_shape=(257,)))
+model.add(Activation('relu'))
+# model.add(Dropout(0.5))
+
+model.add(Dense(512))
 model.add(Activation('relu'))
 # model.add(Dropout(0.5))
 
 model.add(Dense(256))
-model.add(Activation('relu'))
-# model.add(Dropout(0.5))
-
-model.add(Dense(128))
-model.add(Activation('relu'))
-# model.add(Dropout(0.5))
-
-model.add(Dense(128))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
 model.add(Dense(num_labels))
 model.add(Activation('softmax'))
 
+
 model.compile(loss='categorical_crossentropy',
-              metrics=['accuracy'], optimizer='adam')
+              metrics=['accuracy'], optimizer=Adamax(learning_rate=0.002))
 # model.summary()
 
-model.fit(X_train, y_train, batch_size=10, epochs=60,
+model.fit(X_train, y_train, batch_size=5, epochs=60,
           validation_data=(X_validation, y_validation))
 
 result = model.predict(X_test)
@@ -208,7 +182,7 @@ result = model.predict(X_test)
 cnt = 0
 for i in range(len(Y_test)):
     if(np.amax(result[i]) < 0.5):
-        #       pred = 11
+
         pred = np.argmax(result[i])
     else:
         pred = np.argmax(result[i])
@@ -217,11 +191,10 @@ for i in range(len(Y_test)):
 
 acc = str(round(cnt*100/float(len(Y_test)), 2))
 print("Accuracy: " + acc + "%")
-
 showResult()
 
 # save model (optional)
-path = "Audio_classification/Models/audio_NN_New" + \
+path = "Models/audio_NN_New" + \
     datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 model_json = model.to_json()
 with open(path+"_acc_"+acc+".json", "w") as json_file:
