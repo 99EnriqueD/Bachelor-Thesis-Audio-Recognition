@@ -32,7 +32,7 @@ def save_STFT(file, name, activity, subject):
 #               'WashingHand', 'WatchingTV', 'WaterPouring', 'Writing']
 
 
-activities = ['GlassBreak', 'Scream', 'Crash', "Fire"]
+activities = ["WaterSounds"]
 
 # From example repo:
 # subjects = ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's09',

@@ -11,10 +11,10 @@ import pyaudio
 # Load segment audio classification model
 
 model_path = r"Models/"
-model_name = "audio_NN_New2020_02_27_12_46_42_acc_93.33.json"
+model_name = "audio_NN_New2020_02_27_12_46_42_acc_93.33"
 
 # Model reconstruction from JSON file
-with open(model_path + model_name + '.json', 'r') as f:
+with open(model_path + model_name + ".json", 'r') as f:
     model = model_from_json(f.read())
 
 # Load weights into the new model
@@ -61,8 +61,12 @@ def predictSound(X):
     stfts = np.mean(stfts, axis=1)
     stfts = minMaxNormalize(stfts)
     result = model.predict(np.array([stfts]))
+    print(result)
     predictions = [np.argmax(y) for y in result]
-    print(lb.inverse_transform([predictions[0]])[0])
+    if np.max(result) > 0.8:
+        print(lb.inverse_transform([predictions[0]])[0])
+    else:
+        print("other")
     plotAudio2(clip)
 
 
