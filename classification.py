@@ -36,7 +36,7 @@ def get_data(path, sampleSize):
 
     #specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
-    specificActivities = ['GlassBreak', 'Scream', 'Crash', 'WaterSounds']
+    specificActivities = ['GlassBreak', 'Scream', 'Crash', 'WaterSounds', 'Other']
 
     enteringExiting = ['Entering', 'Exiting']
 
