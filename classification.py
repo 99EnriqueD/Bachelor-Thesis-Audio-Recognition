@@ -154,15 +154,15 @@ filter_size = 2
 # build model
 model = Sequential()
 
-model.add(Dense(512, input_shape=(257,)))
+model.add(Conv1D(512, input_shape=257))
 model.add(Activation('relu'))
 # model.add(Dropout(0.5))
 
-model.add(Dense(512))
+model.add(Conv1D(512))
 model.add(Activation('relu'))
 # model.add(Dropout(0.5))
 
-model.add(Dense(256))
+model.add(Conv1(256))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
