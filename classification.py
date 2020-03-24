@@ -4,7 +4,7 @@ import numpy as np
 import os
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, LSTM, TimeDistributed
-from keras.layers import Convolution2D, MaxPooling2D, MaxPooling1D, Conv1D
+from keras.layers import Convolution2D, MaxPooling2D, MaxPooling1D, Conv1D, Conv2D, GlobalAveragePooling2D
 from keras.optimizers import Adam, SGD, Adamax
 from keras.utils import np_utils
 from sklearn import metrics
@@ -12,6 +12,7 @@ import random
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import optimizers
 import datetime
+import talos
 
 
 def reSample(data, samples):
@@ -27,6 +28,9 @@ validation_subjects = ['s04']
 test_subjects = ['s05']
 name_array = []
 
+counters = {}
+
+
 def get_data(path, sampleSize):
 
     #mergedActivities = ['Drinking', 'Eating', 'LyingDown', 'OpeningPillContainer',
@@ -36,7 +40,7 @@ def get_data(path, sampleSize):
 
     #specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
-    specificActivities = ['GlassBreak', 'Scream', 'Crash', 'WaterSounds', 'Other']
+    specificActivities = ['Glassbreak', 'Scream', 'Crash', 'Other']
 
     enteringExiting = ['Entering', 'Exiting']
 
@@ -51,11 +55,18 @@ def get_data(path, sampleSize):
     # Note that 'stft_257_1' contains the STFT features with specification specified in the medium article;
     # https://medium.com/@chathuranga.15/sound-event-classification-using-machine-learning-8768092beafc
 
+    counters = {}
+    total_count = 0
     for file in os.listdir(path + 'stft_257_1/'):
 
         a = (np.load(path + "stft_257_1/" + file)).T
         label = file.split('_')[-1].split(".")[0]
         if(label in specificActivities):
+            if label in counters:
+                counters[label] += 1
+            else:
+                counters[label] = 1
+            total_count += 1
             # if(a.shape[0]>100 and a.shape[0]<500):
             if file.split("_")[0] in train_subjects:
                 # X_train.append(reSample(a,sampleSize))
@@ -76,8 +87,16 @@ def get_data(path, sampleSize):
     Y_test = np.array(Y_test)
     X_validation = np.array(X_validation)
     Y_validation = np.array(Y_validation)
+    print(counters)
+    for label in counters:
+        counters[label] = total_count/counters[label]
+    print(counters)
+    weights = {}
+    for i in range(len(specificActivities)):
+        weights[i] = counters[specificActivities[i]]
 
-    return X_train, Y_train, X_validation, Y_validation, X_test, Y_test
+
+    return X_train, Y_train, X_validation, Y_validation, X_test, Y_test, weights
 
 
 def print_M(conf_M):
@@ -130,7 +149,7 @@ def showResult():
 
 featuresPath = "STFT_features/"
 
-a, b, c, d, e, f = get_data(featuresPath, 250)
+a, b, c, d, e, f, weights = get_data(featuresPath, 250)
 
 
 X_train, Y_train, X_validation, Y_validation, X_test, Y_test = a, b, c, d, e, f
@@ -154,35 +173,38 @@ filter_size = 2
 # build model
 model = Sequential()
 
-model.add(Conv1D(512, input_shape=257))
+model.add(Dense(128))
 model.add(Activation('relu'))
-# model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 
-model.add(Conv1D(512))
+model.add(Dense(128))
 model.add(Activation('relu'))
-# model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 
-model.add(Conv1(256))
+model.add(Dense(128))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
 model.add(Dense(num_labels))
 model.add(Activation('softmax'))
 
-
+print(weights)
 model.compile(loss='categorical_crossentropy',
-              metrics=['accuracy'], optimizer=Adamax(learning_rate=0.002))
-# model.summary()
+              metrics=['accuracy'], optimizer='Adam')
 
-model.fit(X_train, y_train, batch_size=5, epochs=60,
-          validation_data=(X_validation, y_validation))
+
+model.fit(X_train, y_train, batch_size=5, epochs=480,
+          validation_data=(X_validation, y_validation), class_weight=weights)
+
 
 result = model.predict(X_test)
 
+
 cnt = 0
 for i in range(len(Y_test)):
+    print(result[i])
+    print(Y_test[i])
     if(np.amax(result[i]) < 0.5):
-
         pred = np.argmax(result[i])
     else:
         pred = np.argmax(result[i])
