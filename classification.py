@@ -12,7 +12,6 @@ import random
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import optimizers
 import datetime
-import talos
 
 
 def reSample(data, samples):
@@ -33,17 +32,16 @@ counters = {}
 
 def get_data(path, sampleSize):
 
-    #mergedActivities = ['Drinking', 'Eating', 'LyingDown', 'OpeningPillContainer',
+    # mergedActivities = ['Drinking', 'Eating', 'LyingDown', 'OpeningPillContainer',
     #                    'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
     #                    'StandUp', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
     #                    'WaterPouring', 'Writing']
 
-    #specificActivities = ['Calling', 'Clapping',
+    # specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
     specificActivities = ['Glassbreak', 'Scream', 'Crash', 'Other']
 
     enteringExiting = ['Entering', 'Exiting']
-
 
     X_train = []
     Y_train = []
@@ -94,7 +92,6 @@ def get_data(path, sampleSize):
     weights = {}
     for i in range(len(specificActivities)):
         weights[i] = counters[specificActivities[i]]
-
 
     return X_train, Y_train, X_validation, Y_validation, X_test, Y_test, weights
 
@@ -173,9 +170,15 @@ filter_size = 2
 # build model
 model = Sequential()
 
-model.add(Dense(128))
+FILTERS = 9
+KERNEL_SIZE = 4
+STRIDES = 1
+INPUT_SHAPE = (128, 1)
+
+model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
+                 STRIDES=1, padding='valid'))
 model.add(Activation('relu'))
-model.add(Dropout(0.5))
+model.add(Flatten())
 
 model.add(Dense(128))
 model.add(Activation('relu'))
@@ -185,10 +188,11 @@ model.add(Dense(128))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-model.add(Dense(num_labels))
+model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
+                 STRIDES=1, padding='valid'))
 model.add(Activation('softmax'))
+model.add(Flatten())
 
-print(weights)
 model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'], optimizer='Adam')
 
