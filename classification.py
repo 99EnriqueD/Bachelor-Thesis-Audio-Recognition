@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, LSTM, TimeDistributed
+from keras.layers import Dense, Dropout, Activation, Flatten, LSTM, TimeDistributed, Reshape
 from keras.layers import Convolution2D, MaxPooling2D, MaxPooling1D, Conv1D, Conv2D, GlobalAveragePooling2D
 from keras.optimizers import Adam, SGD, Adamax
 from keras.utils import np_utils
@@ -166,7 +166,7 @@ num_labels = y_train.shape[1]
 
 num_labels = y_train.shape[1]
 filter_size = 2
-
+print("test")
 # build model
 model = Sequential()
 
@@ -176,7 +176,7 @@ STRIDES = 1
 INPUT_SHAPE = (128, 1)
 
 model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 STRIDES=1, padding='valid'))
+                 padding='valid', input_shape=INPUT_SHAPE))
 model.add(Activation('relu'))
 model.add(Flatten())
 
@@ -187,18 +187,20 @@ model.add(Dropout(0.5))
 model.add(Dense(128))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-
+model.add(Reshape(INPUT_SHAPE))
 model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 STRIDES=1, padding='valid'))
+                 padding='valid'))
 model.add(Activation('softmax'))
 model.add(Flatten())
+model.add(Dense(4))
 
 model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'], optimizer='Adam')
 
-
-model.fit(X_train, y_train, batch_size=5, epochs=480,
-          validation_data=(X_validation, y_validation), class_weight=weights)
+print(X_train.shape)
+print(X_validation.shape)
+model.fit(np.expand_dims(X_train[:,:128], axis=2), y_train, batch_size=5, epochs=480,
+        validation_data=(np.expand_dims(X_validation[:,:128], axis=2), y_validation), class_weight=weights)
 
 
 result = model.predict(X_test)
