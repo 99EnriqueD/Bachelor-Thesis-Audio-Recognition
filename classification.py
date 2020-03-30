@@ -176,7 +176,8 @@ STRIDES = 1
 INPUT_SHAPE = (128, 1)
 
 model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 padding='valid', input_shape=INPUT_SHAPE))
+                 padding='valid',
+                 input_shape=INPUT_SHAPE))
 model.add(Activation('relu'))
 model.add(Flatten())
 
@@ -189,21 +190,25 @@ model.add(Activation('relu'))
 model.add(Dropout(0.5))
 model.add(Reshape(INPUT_SHAPE))
 model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 padding='valid'))
+                 padding='valid'
+                 ))
 model.add(Activation('softmax'))
 model.add(Flatten())
 model.add(Dense(4))
+model.add(Activation('relu'))
+model.add(Dropout(0.5))
+
 
 model.compile(loss='categorical_crossentropy',
-              metrics=['accuracy'], optimizer='Adam')
+              metrics=['accuracy'], optimizer='adam')
 
 print(X_train.shape)
 print(X_validation.shape)
-model.fit(np.expand_dims(X_train[:,:128], axis=2), y_train, batch_size=5, epochs=480,
-        validation_data=(np.expand_dims(X_validation[:,:128], axis=2), y_validation), class_weight=weights)
+model.fit(np.expand_dims(X_train[:, :128], axis=2), y_train, batch_size=5, epochs=100,
+          validation_data=(np.expand_dims(X_validation[:, :128], axis=2), y_validation), class_weight=weights)
 
 
-result = model.predict(X_test)
+result = model.predict(np.expand_dims(X_test[:, :128], axis=2))
 
 
 cnt = 0
@@ -222,7 +227,7 @@ print("Accuracy: " + acc + "%")
 showResult()
 
 # save model (optional)
-path = "Models/audio_NN_New" + \
+path = "Models/audio_NN_NewConv" + \
     datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 model_json = model.to_json()
 with open(path+"_acc_"+acc+".json", "w") as json_file:
