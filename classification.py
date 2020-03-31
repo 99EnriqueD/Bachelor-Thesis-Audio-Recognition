@@ -39,7 +39,8 @@ def get_data(path, sampleSize):
 
     # specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
-    specificActivities = ['Glassbreak', 'Scream', 'Crash', 'Other']
+    specificActivities = ['Glassbreak', 'Scream',
+                          'Crash', 'Other', 'Watersounds']
 
     enteringExiting = ['Entering', 'Exiting']
 
@@ -167,48 +168,49 @@ num_labels = y_train.shape[1]
 num_labels = y_train.shape[1]
 filter_size = 2
 print("test")
+
 # build model
 model = Sequential()
 
 FILTERS = 9
-KERNEL_SIZE = 4
+KERNEL_SIZE = 5
 STRIDES = 1
-INPUT_SHAPE = (128, 1)
+INPUT_SHAPE = (257, 1)
 
 model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
                  padding='valid',
-                 input_shape=INPUT_SHAPE))
-model.add(Activation('relu'))
+                 input_shape=INPUT_SHAPE, activation='relu'))
+model.add(Dropout(0.5))
 model.add(Flatten())
 
-model.add(Dense(128))
+model.add(Dense(INPUT_SHAPE[0]))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-model.add(Dense(128))
+model.add(Dense(INPUT_SHAPE[0]))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
+
 model.add(Reshape(INPUT_SHAPE))
-model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 padding='valid'
+model.add(Conv1D(filters=1, kernel_size=KERNEL_SIZE,
+                 padding='valid', activation='relu'
                  ))
-model.add(Activation('softmax'))
-model.add(Flatten())
-model.add(Dense(4))
-model.add(Activation('relu'))
 model.add(Dropout(0.5))
+model.add(Flatten())
+
+model.add(Dense(num_labels))  # number of classes
+model.add(Activation('softmax'))
 
 
 model.compile(loss='categorical_crossentropy',
-              metrics=['accuracy'], optimizer='adam')
-
-print(X_train.shape)
-print(X_validation.shape)
-model.fit(np.expand_dims(X_train[:, :128], axis=2), y_train, batch_size=5, epochs=100,
-          validation_data=(np.expand_dims(X_validation[:, :128], axis=2), y_validation), class_weight=weights)
+              metrics=['accuracy'], optimizer='Adam')
 
 
-result = model.predict(np.expand_dims(X_test[:, :128], axis=2))
+model.fit(np.expand_dims(X_train, axis=2), y_train, batch_size=5, epochs=200,
+          validation_data=(np.expand_dims(X_validation, axis=2), y_validation), class_weight=weights, verbose=1)
+
+
+result = model.predict(np.expand_dims(X_test, axis=2))
 
 
 cnt = 0
