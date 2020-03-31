@@ -11,7 +11,7 @@ import pyaudio
 # Load segment audio classification model
 
 model_path = r"Models/"
-model_name = "audio_NN_New2020_02_27_12_46_42_acc_93.33"
+model_name = "audio_NN_New2020_03_24_17_27_32_acc_84.44"
 
 # Model reconstruction from JSON file
 with open(model_path + model_name + ".json", 'r') as f:
