@@ -22,7 +22,7 @@ model.load_weights(model_path + model_name + '.h5')
 
 # Replicate label encoder
 lb = LabelEncoder()
-lb.fit_transform(['Glassbreak', 'Scream', 'Crash', ])
+lb.fit_transform(['Glassbreak', 'Scream', 'Crash', 'Other'])
 
 # Some Utils
 
@@ -67,7 +67,7 @@ def predictSound(X):
         print(lb.inverse_transform([predictions[0]])[0])
     else:
         print("other")
-    plotAudio2(clip)
+    # plotAudio2(clip)
 
 
 CHUNKSIZE = 22050  # fixed chunk size
