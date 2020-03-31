@@ -22,7 +22,7 @@ model.load_weights(model_path + model_name + '.h5')
 
 # Replicate label encoder
 lb = LabelEncoder()
-lb.fit_transform(['GlassBreak', 'Scream', 'Crash', ])
+lb.fit_transform(['Glassbreak', 'Scream', 'Crash', ])
 
 # Some Utils
 
