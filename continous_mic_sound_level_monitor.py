@@ -1,9 +1,9 @@
 import numpy as np
-import librosa
-import matplotlib.pyplot as plt
-import noisereduce as nr
-from keras.models import model_from_json
-from sklearn.preprocessing import LabelEncoder
+# import librosa
+# import matplotlib.pyplot as plt
+# import noisereduce as nr
+# from keras.models import model_from_json
+# from sklearn.preprocessing import LabelEncoder
 import IPython
 import os
 import pyaudio
