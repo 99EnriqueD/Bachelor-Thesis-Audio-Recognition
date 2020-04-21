@@ -166,7 +166,6 @@ y_validation = np_utils.to_categorical(lb.fit_transform(Y_validation))
 num_labels = y_train.shape[1]
 
 num_labels = y_train.shape[1]
-filter_size = 2
 
 # build model
 model = Sequential()
@@ -214,7 +213,7 @@ acc = str(round(cnt*100/float(len(Y_test)), 2))
 print("Accuracy: " + acc + "%")
 showResult()
 
-# save model (optional)
+# save model
 path = "Models/audio_NN_New" + \
     datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 model_json = model.to_json()
