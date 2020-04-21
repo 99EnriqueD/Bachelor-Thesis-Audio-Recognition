@@ -12,7 +12,6 @@ import random
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import optimizers
 import datetime
-import talos
 
 
 def reSample(data, samples):
@@ -40,7 +39,8 @@ def get_data(path, sampleSize):
 
     # specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
-    specificActivities = ['Glassbreak', 'Scream', 'Crash', 'Other']
+    specificActivities = ['Glassbreak', 'Scream',
+                          'Crash', 'Other', 'Watersounds']
 
     enteringExiting = ['Entering', 'Exiting']
 
@@ -194,6 +194,7 @@ model.compile(loss='categorical_crossentropy',
 model.fit(X_train, y_train, batch_size=5, epochs=480,
           validation_data=(X_validation, y_validation), class_weight=weights)
 
+print(model.summary())
 
 result = model.predict(X_test)
 

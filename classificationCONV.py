@@ -12,6 +12,7 @@ import random
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import optimizers
 import datetime
+from keras.layers.pooling import GlobalAveragePooling1D
 
 
 def reSample(data, samples):
@@ -40,7 +41,9 @@ def get_data(path, sampleSize):
     # specificActivities = ['Calling', 'Clapping',
     #                      'Falling', 'Sweeping', 'WashingHand', 'WatchingTV']
     specificActivities = ['Glassbreak', 'Scream',
-                          'Crash', 'Other', 'Watersounds']
+                          'Crash', 'Other',
+                          'Watersounds'
+                          ]
 
     enteringExiting = ['Entering', 'Exiting']
 
@@ -172,32 +175,18 @@ print("test")
 # build model
 model = Sequential()
 
-FILTERS = 9
-KERNEL_SIZE = 5
-STRIDES = 1
+KERNEL_SIZE = 12
 INPUT_SHAPE = (257, 1)
 
-model.add(Conv1D(filters=FILTERS, kernel_size=KERNEL_SIZE,
-                 padding='valid',
+# Based off https://blog.goodaudience.com/introduction-to-1d-convolutional-neural-networks-in-keras-for-time-sequences-3a7ff801a2cf
+model.add(Conv1D(50, KERNEL_SIZE,
                  input_shape=INPUT_SHAPE, activation='relu'))
+model.add(Conv1D(50, KERNEL_SIZE, activation='relu'))
+model.add(MaxPooling1D(3))
+model.add(Conv1D(120, KERNEL_SIZE, activation='relu'))
+model.add(Conv1D(120, KERNEL_SIZE, activation='relu'))
+model.add(GlobalAveragePooling1D())
 model.add(Dropout(0.5))
-model.add(Flatten())
-
-model.add(Dense(INPUT_SHAPE[0]))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-
-model.add(Dense(INPUT_SHAPE[0]))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-
-model.add(Reshape(INPUT_SHAPE))
-model.add(Conv1D(filters=1, kernel_size=KERNEL_SIZE,
-                 padding='valid', activation='relu'
-                 ))
-model.add(Dropout(0.5))
-model.add(Flatten())
-
 model.add(Dense(num_labels))  # number of classes
 model.add(Activation('softmax'))
 
@@ -206,10 +195,10 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'], optimizer='Adam')
 
 
-model.fit(np.expand_dims(X_train, axis=2), y_train, batch_size=5, epochs=200,
+model.fit(np.expand_dims(X_train, axis=2), y_train, batch_size=5, epochs=480,
           validation_data=(np.expand_dims(X_validation, axis=2), y_validation), class_weight=weights, verbose=1)
 
-
+print(model.summary())
 result = model.predict(np.expand_dims(X_test, axis=2))
 
 
