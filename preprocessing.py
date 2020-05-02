@@ -3,6 +3,18 @@ import noisereduce as nr
 import os
 import numpy as np
 
+"""
+Script that preprocesses wav files to npy files usable for the ML models
+
+This script transforms the audio to frequencies using the STFT.
+Meant to be used for the classificationDENSE.py and classificationCONV.py models.
+"""
+
+sound_classes = ['Glassbreak', 'Scream',
+                 'Crash', 'Other', 'Watersounds']
+
+subjects = ['s01', 's02', 's03', 's04', 's05']
+
 
 def save_STFT(file, name, activity, subject):
     # read audio data
@@ -17,34 +29,20 @@ def save_STFT(file, name, activity, subject):
     trimmed, index = librosa.effects.trim(
         reduced_noise, top_db=20, frame_length=512, hop_length=64)
 
-    # extract features
+    # extract frequency features
     stft = np.abs(librosa.stft(trimmed, n_fft=512,
                                hop_length=256, win_length=512))
     # save features
     np.save("STFT_features/stft_257_1/" + subject + "_" +
             name[:-4] + "_" + activity + ".npy", stft)
 
-# From example repo:
-# activities = ['Calling', 'Clapping', 'Drinking', 'Eating', 'Entering',
-#               'Exiting', 'Falling', 'LyingDown', 'OpeningPillContainer',
-#               'PickingObject', 'Reading', 'SitStill', 'Sitting', 'Sleeping',
-#               'StandUp', 'Sweeping', 'UseLaptop', 'UsingPhone', 'WakeUp', 'Walking',
-#               'WashingHand', 'WatchingTV', 'WaterPouring', 'Writing']
 
-
-activities = ["Watersounds"]
-
-# From example repo:
-# subjects = ['s01', 's02', 's03', 's04', 's05', 's06', 's07', 's08', 's09',
-#             's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17']
-
-subjects = ['s01', 's02', 's03', 's04', 's05']
-
-for activity in activities:
+# Iterates over all sound_classes and subjects to perform the preprocessing on each wav file in the dataset.
+for s_class in sound_classes:
     for subject in subjects:
-        innerDir = subject + "/" + activity
+        innerDir = subject + "/" + s_class
         for file in os.listdir("Dataset_audio/" + innerDir):
             if(file.endswith(".wav")):
                 save_STFT("Dataset_audio/" + innerDir +
-                          "/" + file, file, activity, subject)
-                print(subject, activity, file)
+                          "/" + file, file, s_class, subject)
+                print(subject, s_class, file)
