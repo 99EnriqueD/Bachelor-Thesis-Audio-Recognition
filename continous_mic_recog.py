@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import noisereduce as nr
 from keras.models import model_from_json
 from sklearn.preprocessing import LabelEncoder
-import IPython
 import os
 import pyaudio
 
@@ -22,28 +21,10 @@ model.load_weights(model_path + model_name + '.h5')
 
 # Replicate label encoder
 lb = LabelEncoder()
-lb.fit_transform(['Glassbreak', 'Scream', 'Crash', 'Other'])
+lb.fit_transform(['Glassbreak', 'Scream',
+                  'Crash', 'Other'])
 
 # Some Utils
-
-# Plot audio with zoomed in y axis
-
-
-def plotAudio(output):
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
-    plt.plot(output, color='blue')
-    ax.set_xlim((0, len(output)))
-    ax.margins(2, -0.1)
-    plt.show()
-
-# Plot audio
-
-
-def plotAudio2(output):
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 4))
-    plt.plot(output, color='blue')
-    ax.set_xlim((0, len(output)))
-    plt.show()
 
 
 def minMaxNormalize(arr):
@@ -66,8 +47,7 @@ def predictSound(X):
     if np.max(result) > 0.8:
         print(lb.inverse_transform([predictions[0]])[0])
     else:
-        print("other")
-    # plotAudio2(clip)
+        print("Other")
 
 
 CHUNKSIZE = 22050  # fixed chunk size
@@ -82,7 +62,6 @@ stream = p.open(format=pyaudio.paFloat32, channels=1, rate=RATE,
 data = stream.read(10000)
 noise_sample = np.frombuffer(data, dtype=np.float32)
 print("Noise Sample")
-plotAudio2(noise_sample)
 loud_threshold = np.mean(np.abs(noise_sample)) * 10
 print("Loud threshold", loud_threshold)
 audio_buffer = []
@@ -108,7 +87,7 @@ while(True):
             else:
                 predictSound(np.array(audio_buffer))
                 audio_buffer = []
-                near
+                near = 0
         else:
             print("Inside loud reign")
             near = 0
