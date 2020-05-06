@@ -56,6 +56,8 @@ def get_data(path):
                 counters[label] = 1
             total_count += 1
             if file.split("_")[0] in train_subjects:
+                print(a.shape)
+                print(a)
                 X_train.append(np.mean(a, axis=0))
                 Y_train.append(label)
             elif file.split("_")[0] in validation_subjects:
@@ -67,6 +69,8 @@ def get_data(path):
                 Y_test.append(label)
 
     X_train = np.array(X_train)
+    print(X_train)
+    print(X_train.shape)
     Y_train = np.array(Y_train)
     X_test = np.array(X_test)
     Y_test = np.array(Y_test)

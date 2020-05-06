@@ -58,18 +58,19 @@ def get_data(path):
             total_count += 1
             if file.split("_")[0] in train_subjects:
                 print(a.shape)
-                print(np.expand_dims(a, axis=1).shape)
-                X_train.append(np.expand_dims(np.mean(a, axis=0), axis=0))
+                print(a)
+                X_train.append(a.tolist())
                 Y_train.append(label)
             elif file.split("_")[0] in validation_subjects:
-                X_validation.append(np.expand_dims(np.mean(a, axis=0), axis=0))
+                X_validation.append(a)
                 Y_validation.append(label)
             else:
                 name_array.append(file)
-                X_test.append(np.expand_dims(np.mean(a, axis=0), axis=0))
+                X_test.append(a)
                 Y_test.append(label)
 
     X_train = np.array(X_train)
+    print(X_train.shape)
     Y_train = np.array(Y_train)
     X_test = np.array(X_test)
     Y_test = np.array(Y_test)
